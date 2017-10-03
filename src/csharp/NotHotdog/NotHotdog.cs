@@ -1,7 +1,10 @@
+using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Newtonsoft.Json;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -12,12 +15,13 @@ namespace NotHotdog
 {
     public static class NotHotdog
     {
-        const string subscriptionKey = "<your sub key>";
-        const string uriBase = "<your vision api URL>";
+        const string uriBase = "https://westus2.api.cognitive.microsoft.com/vision/v1.0/analyze";
 
         [FunctionName("NotHotdog")]
         public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post")]HttpRequestMessage req, TraceWriter log)
         {
+            try
+            {
             //Read image URL from request body
             string imageURL = await req.Content.ReadAsStringAsync();
 
@@ -36,7 +40,11 @@ namespace NotHotdog
             {
                 return req.CreateResponse(HttpStatusCode.OK, "Not hot dog");
             }
-
+            }
+            catch (Exception ex)
+            {
+                return req.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
 
         }
 
@@ -50,7 +58,7 @@ namespace NotHotdog
             var client = new HttpClient();
             
             // Set Request headers
-            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", subscriptionKey);
+            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", GetVisionAPIKey());
 
             // Set Request parameters. 
             string requestParameters = "visualfeatures=tags,description";
@@ -75,6 +83,28 @@ namespace NotHotdog
             }
 
             return response;
+        }
+
+        public static string GetVisionAPIKey()
+        {
+                var kv = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(GetToken));
+                string subscriptionKey = kv.GetSecretAsync("<secret ID>").Result.Value;
+                return subscriptionKey;
+        }
+
+        public async static Task<string> GetToken(string authority, string resource, string scope)
+        {
+            var authContext = new AuthenticationContext(authority);
+
+            ClientCredential clientCred = new ClientCredential("<AppID>", "<AppKey>");
+
+            AuthenticationResult result = await authContext.AcquireTokenAsync(resource, clientCred);
+
+            if (result == null)
+
+                throw new InvalidOperationException("Failed to obtain the JWT token");
+
+            return result.AccessToken;
         }
 
     }

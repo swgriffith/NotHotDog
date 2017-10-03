@@ -3,6 +3,8 @@
     <TargetFramework>net461</TargetFramework>
   </PropertyGroup>
   <ItemGroup>    
+    <PackageReference Include="Microsoft.Azure.KeyVault" Version="2.3.2" />    
+    <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="3.10.305231913" />    
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.2" />    
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>

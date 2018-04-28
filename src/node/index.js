@@ -9,7 +9,7 @@ module.exports = function (context, req) {
 
             // Pass the image to Azure Cognitive Services API to retrieve image data
             var options = {
-                uri: "https://westus2.api.cognitive.microsoft.com/vision/v1.0/analyze?visualfeatures=tags,description",
+                uri: process.env.Vision_API_URL + "/analyze?visualfeatures=tags,description",
                 method: 'POST',
                 json: {
                 "url": req.body

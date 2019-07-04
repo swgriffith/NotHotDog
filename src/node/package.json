@@ -4,12 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "request-promise": "^3.0.0"
-  }
+    "request-promise": "^3.0.0",
+    "snyk": "^1.189.0"
+  },
+  "snyk": true
 }
